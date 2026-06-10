@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keyword SP Analyzer | Retail Media Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+  <style>
+    :root {
+      --primary: #10b981;
+      --black: #080808;
+      --surface: #101010;
+      --surface2: #161616;
+      --border: rgba(255,255,255,0.08);
+      --text: rgba(255,255,255,0.90);
+      --text-mid: rgba(255,255,255,0.52);
+      --text-dim: rgba(255,255,255,0.25);
+      --sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --green: #34d399;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 28%, rgba(16,185,129,0.21) 0%, transparent 78%),
+        radial-gradient(ellipse 45% 40% at 94% 4%, rgba(16,185,129,0.13) 0%, transparent 72%);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0 32px;
+      background: linear-gradient(180deg, rgba(10,8,6,0.97) 0%, rgba(5,8,6,0.96) 100%);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 4px 32px rgba(0,0,0,0.5);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .logo-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 6px 2px rgba(16,185,129,0.6);
+    }
+
+    .back-btn {
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--text-mid);
+      background: linear-gradient(160deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 16px;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.18s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .back-btn:hover {
+      color: var(--text);
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .page-wrap {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 32px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 300;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .hero h1 strong {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .hero p {
+      font-size: 14px;
+      color: var(--text-mid);
+    }
+
+    .upload-section {
+      background: linear-gradient(160deg, rgba(255,255,255,0.055) 0%, rgba(16,185,129,0.03) 100%);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 18px;
+      padding: 32px;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    .upload-area {
+      border: 2px dashed rgba(16,185,129,0.3);
+      border-radius: 12px;
+      padding: 32px;
+      background: rgba(16,185,129,0.05);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .upload-area:hover {
+      border-color: rgba(16,185,129,0.6);
+      background: rgba(16,185,129,0.1);
+    }
+
+    .upload-area.dragover {
+      border-color: rgba(16,185,129,0.8);
+      background: rgba(16,185,129,0.15);
+    }
+
+    .upload-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .upload-text {
+      font-size: 14px;
+      color: var(--text-mid);
+      margin-bottom: 8px;
+    }
+
+    .upload-hint {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    .filters {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 9px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-box input:focus {
+      border-color: rgba(16,185,129,0.45);
+    }
+
+    .sort-select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 9px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .sort-select:focus {
+      border-color: rgba(16,185,129,0.45);
+    }
+
+    .sort-select option {
+      background: #1a1a1a;
+      color: var(--text);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: linear-gradient(160deg, rgba(255,255,255,0.055) 0%, rgba(16,185,129,0.03) 100%);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .stat-subtitle {
+      font-size: 12px;
+      color: var(--text-mid);
+      margin-top: 4px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 12px;
+      background: linear-gradient(160deg, rgba(255,255,255,0.055) 0%, rgba(16,185,129,0.03) 100%);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+    }
+
+    th {
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 500;
+      color: var(--text-mid);
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    th:hover {
+      color: var(--text);
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--text);
+    }
+
+    tr:hover {
+      background: rgba(16,185,129,0.05);
+    }
+
+    .metric-good { color: var(--green); font-weight: 500; }
+    .metric-warning { color: var(--yellow); font-weight: 500; }
+    .metric-bad { color: var(--red); font-weight: 500; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .page-wrap { padding: 20px 16px; }
+      .upload-section { padding: 20px; }
+      .hero h1 { font-size: 28px; }
+      .filters { flex-direction: column; }
+      .search-box { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="./" class="logo">← PLTFRM <span class="logo-dot"></span></a>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <div class="hero">
+    <h1>Keyword SP <strong>Analyzer</strong></h1>
+    <p>Upload your keyword data to analyze CPC, ROAS, CTR, and spend metrics</p>
+  </div>
+
+  <div class="upload-section">
+    <div class="upload-area" id="upload-area">
+      <div class="upload-icon">📊</div>
+      <div class="upload-text">Drag and drop your file here or click to select</div>
+      <div class="upload-hint">Supports CSV, Excel (.xlsx, .xls)</div>
+    </div>
+    <input type="file" id="file-input" accept=".csv,.xlsx,.xls">
+  </div>
+
+  <div id="data-section" style="display: none;">
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <div class="filters">
+      <div class="search-box">
+        <input type="text" id="keyword-search" placeholder="Search keywords or media names...">
+      </div>
+      <select id="sort-select" class="sort-select">
+        <option value="">Sort by...</option>
+        <option value="cpc-asc">CPC (Low to High)</option>
+        <option value="cpc-desc">CPC (High to Low)</option>
+        <option value="roas-desc">ROAS (High to Low)</option>
+        <option value="roas-asc">ROAS (Low to High)</option>
+        <option value="ctr-desc">CTR (High to Low)</option>
+        <option value="spend-desc">Spend (High to Low)</option>
+      </select>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Media Name</th>
+            <th>Keyword</th>
+            <th>Impressions</th>
+            <th>Clicks</th>
+            <th>CTR</th>
+            <th>CPC</th>
+            <th>Spend</th>
+            <th>Sales</th>
+            <th>ROAS</th>
+            <th>Units</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="empty-state" id="empty-state" style="display: none;">
+      No data to display
+    </div>
+  </div>
+
+  <div class="empty-state" id="initial-state">
+    Upload a CSV or Excel file to get started
+  </div>
+</div>
+
+<script>
+  const uploadArea = document.getElementById('upload-area');
+  const fileInput = document.getElementById('file-input');
+  const dataSection = document.getElementById('data-section');
+  const initialState = document.getElementById('initial-state');
+  const tableBody = document.getElementById('table-body');
+  const keywordSearch = document.getElementById('keyword-search');
+  const sortSelect = document.getElementById('sort-select');
+  const statsGrid = document.getElementById('stats-grid');
+  const emptyState = document.getElementById('empty-state');
+
+  let allData = [];
+
+  uploadArea.addEventListener('click', () => fileInput.click());
+
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+  });
+
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) handleFile(files[0]);
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) handleFile(e.target.files[0]);
+  });
+
+  function handleFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target.result;
+      if (file.name.endsWith('.csv')) {
+        parseCSV(content);
+      } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+        parseExcel(e.target.result);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function parseCSV(content) {
+    Papa.parse(content, {
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: false,
+      complete: (results) => {
+        processData(results.data);
+      }
+    });
+  }
+
+  function parseExcel(data) {
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(sheet);
+    processData(rows);
+  }
+
+  function processData(rows) {
+    allData = rows.map(row => ({
+      mediaName: String(row['media name'] || row['Media Name'] || row['MEDIA NAME'] || '').trim(),
+      keyword: String(row['keyword'] || row['Keyword'] || row['KEYWORD'] || '').trim(),
+      impressions: parseFloat(row['impressions'] || row['Impressions'] || row['IMPRESSIONS'] || 0) || 0,
+      clicks: parseFloat(row['clicks'] || row['Clicks'] || row['CLICKS'] || 0) || 0,
+      ctr: parseFloat(row['ctr'] || row['CTR'] || row['CTR'] || 0) || 0,
+      cpc: parseFloat(row['cpc'] || row['CPC'] || row['CPC'] || 0) || 0,
+      spend: parseFloat(row['spend'] || row['Spend'] || row['SPEND'] || 0) || 0,
+      sales: parseFloat(row['sales'] || row['Sales'] || row['SALES'] || 0) || 0,
+      roas: parseFloat(row['roas'] || row['ROAS'] || row['ROAS'] || 0) || 0,
+      units: parseFloat(row['units'] || row['Units'] || row['UNITS'] || 0) || 0
+    })).filter(row => row.keyword && row.keyword.length > 0);
+
+    if (allData.length === 0) {
+      alert('No valid data found. Make sure your file has required columns.');
+      return;
+    }
+
+    initialState.style.display = 'none';
+    dataSection.style.display = 'block';
+    renderStats();
+    renderTable();
+  }
+
+  function renderStats() {
+    const totalSpend = allData.reduce((sum, row) => sum + row.spend, 0);
+    const totalSales = allData.reduce((sum, row) => sum + row.sales, 0);
+    const avgCPC = allData.reduce((sum, row) => sum + row.cpc, 0) / allData.length;
+    const avgROAS = allData.reduce((sum, row) => sum + row.roas, 0) / allData.length;
+    const avgCTR = allData.reduce((sum, row) => sum + row.ctr, 0) / allData.length;
+
+    statsGrid.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-label">Total Spend</div>
+        <div class="stat-value">$${totalSpend.toFixed(2)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Sales</div>
+        <div class="stat-value">$${totalSales.toFixed(2)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg CPC</div>
+        <div class="stat-value">$${avgCPC.toFixed(2)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg ROAS</div>
+        <div class="stat-value">${avgROAS.toFixed(2)}x</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg CTR</div>
+        <div class="stat-value">${(avgCTR * 100).toFixed(2)}%</div>
+      </div>
+    `;
+  }
+
+  function renderTable() {
+    let filtered = allData;
+
+    const query = keywordSearch.value.toLowerCase();
+    if (query) {
+      filtered = filtered.filter(row =>
+        row.keyword.toLowerCase().includes(query) ||
+        row.mediaName.toLowerCase().includes(query)
+      );
+    }
+
+    const sortValue = sortSelect.value;
+    if (sortValue === 'cpc-asc') filtered.sort((a, b) => a.cpc - b.cpc);
+    if (sortValue === 'cpc-desc') filtered.sort((a, b) => b.cpc - a.cpc);
+    if (sortValue === 'roas-desc') filtered.sort((a, b) => b.roas - a.roas);
+    if (sortValue === 'roas-asc') filtered.sort((a, b) => a.roas - b.roas);
+    if (sortValue === 'ctr-desc') filtered.sort((a, b) => b.ctr - a.ctr);
+    if (sortValue === 'spend-desc') filtered.sort((a, b) => b.spend - a.spend);
+
+    if (filtered.length === 0) {
+      tableBody.innerHTML = '';
+      emptyState.style.display = 'block';
+      return;
+    }
+
+    emptyState.style.display = 'none';
+    tableBody.innerHTML = filtered.map(row => {
+      const cpcClass = row.cpc < 0.5 ? 'metric-good' : row.cpc < 1 ? 'metric-warning' : 'metric-bad';
+      const roasClass = row.roas > 3 ? 'metric-good' : row.roas > 1 ? 'metric-warning' : 'metric-bad';
+      const ctrClass = row.ctr > 0.05 ? 'metric-good' : row.ctr > 0.02 ? 'metric-warning' : 'metric-bad';
+
+      return `
+        <tr>
+          <td>${row.mediaName}</td>
+          <td>${row.keyword}</td>
+          <td>${row.impressions.toLocaleString()}</td>
+          <td>${row.clicks.toLocaleString()}</td>
+          <td class="${ctrClass}">${(row.ctr * 100).toFixed(2)}%</td>
+          <td class="${cpcClass}">$${row.cpc.toFixed(2)}</td>
+          <td>$${row.spend.toFixed(2)}</td>
+          <td>$${row.sales.toFixed(2)}</td>
+          <td class="${roasClass}">${row.roas.toFixed(2)}x</td>
+          <td>${row.units}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  keywordSearch.addEventListener('input', renderTable);
+  sortSelect.addEventListener('change', renderTable);
+</script>
+
+</body>
+</html>
