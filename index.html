@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PLTFRM | Retail Media Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #10b981;
+      --black: #080808;
+      --surface: #101010;
+      --surface2: #161616;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --text: rgba(255,255,255,0.90);
+      --text-mid: rgba(255,255,255,0.52);
+      --text-dim: rgba(255,255,255,0.25);
+      --sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 28%,
+          rgba(16,185,129,0.21) 0%,
+          rgba(5,150,105,0.10) 35%,
+          rgba(4,120,87,0.04) 60%,
+          transparent 78%
+        ),
+        radial-gradient(ellipse 45% 40% at 94% 4%,
+          rgba(16,185,129,0.13) 0%,
+          rgba(5,150,105,0.05) 50%,
+          transparent 72%
+        ),
+        radial-gradient(ellipse 40% 32% at 4% 96%,
+          rgba(5,150,105,0.10) 0%,
+          transparent 68%
+        );
+    }
+
+    .page-wrap {
+      position: relative;
+      z-index: 10;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0 32px;
+      background: linear-gradient(180deg, rgba(10,8,6,0.97) 0%, rgba(5,8,6,0.96) 100%);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.05) inset,
+        0 0 0 1px rgba(16,185,129,0.06),
+        0 4px 32px rgba(0,0,0,0.5);
+    }
+
+    .header-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 6px 2px rgba(16,185,129,0.6), 0 0 14px rgba(16,185,129,0.3);
+    }
+
+    .manage-btn {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-mid);
+      background: linear-gradient(160deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 18px;
+      border-radius: 100px;
+      cursor: pointer;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 2px 8px rgba(0,0,0,0.3);
+      transition: border-color 0.18s, color 0.18s, box-shadow 0.18s;
+    }
+    .manage-btn:hover {
+      border-color: rgba(255,255,255,0.18);
+      color: var(--text);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 2px 12px rgba(0,0,0,0.4), 0 0 16px rgba(16,185,129,0.08);
+    }
+
+    .hero {
+      position: relative;
+      z-index: 10;
+      padding: 80px 0 56px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 5.5vw, 70px);
+      font-weight: 300;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .hero h1 strong {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 180px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 13px; top: 50%;
+      transform: translateY(-50%);
+      width: 13px; height: 13px;
+      color: var(--text-dim);
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+    .search-input {
+      width: 100%;
+      background: linear-gradient(160deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 400;
+      padding: 8px 36px 8px 34px;
+      border-radius: 100px;
+      outline: none;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 2px 8px rgba(0,0,0,0.3);
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    .search-input::placeholder { color: var(--text-dim); }
+    .search-input:focus {
+      border-color: rgba(16,185,129,0.4);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 2px 12px rgba(0,0,0,0.35), 0 0 0 3px rgba(16,185,129,0.08);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: var(--text-dim); font-size: 12px;
+      cursor: pointer; line-height: 1; padding: 2px;
+      transition: color 0.15s;
+    }
+    .search-clear:hover { color: var(--text-mid); }
+    .search-clear:not(.visible) { display: none; }
+
+    .tools-section { position: relative; z-index: 10; padding-bottom: 80px; }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 12px;
+    }
+
+    .tool-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 26px 26px 22px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: linear-gradient(
+        160deg,
+        rgba(255,255,255,0.055) 0%,
+        rgba(255,255,255,0.025) 50%,
+        rgba(16,185,129,0.03) 100%
+      );
+      box-shadow:
+        0 2px 0 rgba(255,255,255,0.05) inset,
+        0 1px 3px rgba(0,0,0,0.4),
+        0 8px 32px rgba(0,0,0,0.35);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+      will-change: transform;
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 12px; right: 12px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      border-radius: 1px;
+    }
+
+    .tool-card::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 19px;
+      border: 1px solid rgba(16,185,129,0);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      pointer-events: none;
+    }
+
+    .tool-card:hover {
+      border-color: rgba(255,255,255,0.14);
+      transform: translateY(-3px);
+      box-shadow:
+        0 2px 0 rgba(255,255,255,0.06) inset,
+        0 2px 4px rgba(0,0,0,0.5),
+        0 16px 48px rgba(0,0,0,0.45),
+        0 0 40px rgba(16,185,129,0.07);
+    }
+    .tool-card:hover::after {
+      border-color: rgba(16,185,129,0.3);
+      box-shadow: 0 0 18px rgba(16,185,129,0.1);
+    }
+
+    .tool-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .tool-number { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; color: var(--text-dim); }
+
+    .tool-arrow {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: var(--text-dim);
+      transition: border-color 0.18s, color 0.18s, background 0.18s;
+      flex-shrink: 0;
+    }
+    .tool-card:hover .tool-arrow {
+      border-color: rgba(16,185,129,0.4);
+      background: rgba(16,185,129,0.1);
+      color: #e8e8e8;
+    }
+
+    .tool-name { font-size: 18px; font-weight: 600; color: var(--text); line-height: 1.25; letter-spacing: -0.01em; }
+    .tool-desc { font-size: 13px; font-weight: 300; color: var(--text-mid); line-height: 1.65; flex: 1; }
+    .tool-author { font-size: 12px; color: var(--text-dim); }
+    .tool-author span { color: var(--text-mid); }
+
+    .tool-card-footer {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding-top: 12px; border-top: 1px solid var(--border);
+    }
+    .tool-tags { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+    .tool-tag {
+      font-size: 11px; font-weight: 400;
+      letter-spacing: 0.03em;
+      border-radius: 100px;
+      padding: 3px 10px;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1; text-align: center;
+      padding: 80px 20px; color: var(--text-dim);
+      font-size: 14px; font-weight: 300;
+    }
+
+    footer {
+      position: relative; z-index: 10;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 40px 32px;
+      color: var(--text-dim); font-size: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .overlay {
+      position: fixed; inset: 0; z-index: 100;
+      overflow-y: auto;
+      padding: 32px 20px;
+      background: rgba(0,0,0,0.82);
+      display: flex; align-items: flex-start; justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+    .overlay.open { opacity: 1; pointer-events: auto; }
+
+    .manager-panel {
+      position: relative;
+      width: 100%; max-width: 660px;
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.9);
+      transform: translateY(10px);
+      transition: transform 0.22s ease;
+    }
+    .overlay.open .manager-panel { transform: translateY(0); }
+
+    .manager-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 28px;
+    }
+    .manager-eyebrow {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 6px;
+    }
+    .manager-title {
+      font-size: 24px; font-weight: 600; letter-spacing: -0.02em; color: var(--text);
+    }
+    .close-btn {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text-mid); font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s; flex-shrink: 0; margin-top: 2px;
+    }
+    .close-btn:hover { background: #222; color: var(--text); }
+
+    .manager-tabs {
+      display: flex; gap: 4px; margin-bottom: 28px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 4px;
+    }
+    .manager-tab {
+      flex: 1; font-family: var(--sans); font-size: 13px; font-weight: 500;
+      color: var(--text-dim); background: none; border: none;
+      padding: 8px 10px; border-radius: 7px; cursor: pointer;
+      transition: background 0.15s, color 0.15s; white-space: nowrap;
+    }
+    .manager-tab:hover { color: var(--text-mid); background: rgba(255,255,255,0.04); }
+    .manager-tab.active { background: #222; color: var(--text); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .section-label {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--primary);
+      margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 1px solid rgba(16,185,129,0.15);
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 12px; font-weight: 500; color: var(--text-mid); margin-bottom: 6px; }
+
+    .form-input, .form-textarea {
+      width: 100%; background: var(--surface2);
+      border: 1px solid var(--border); color: var(--text);
+      font-family: var(--sans); font-size: 13px; font-weight: 300;
+      padding: 10px 13px; border-radius: 9px;
+      outline: none; resize: vertical;
+      transition: border-color 0.15s;
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--text-dim); }
+    .form-input:focus, .form-textarea:focus { border-color: rgba(16,185,129,0.45); }
+    .form-textarea { min-height: 74px; line-height: 1.6; }
+
+    .btn-primary { background: var(--primary); color: #111; padding: 10px 22px; border: none; border-radius: 100px; cursor: pointer; font-family: var(--sans); font-size: 13px; font-weight: 500; transition: background 0.15s; }
+    .btn-primary:hover { background: #059669; }
+
+    .btn-delete { background: none; border: 1px solid rgba(255,80,80,0.3); color: #f87171; font-family: var(--sans); font-size: 11px; padding: 5px 12px; border-radius: 100px; cursor: pointer; transition: all 0.15s; }
+    .btn-delete:hover { border-color: rgba(255,80,80,0.6); background: rgba(255,80,80,0.1); }
+
+    .tools-list { margin-top: 20px; }
+    .tool-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .tool-list-name { font-size: 14px; font-weight: 500; color: var(--text); }
+    .tool-list-type { font-size: 11px; color: var(--text-dim); }
+
+    @media (max-width: 768px) {
+      header, .page-wrap { padding-left: 16px; padding-right: 16px; }
+      .hero { padding: 52px 0 40px; }
+      .manager-panel { padding: 22px; }
+      .hero h1 { white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">PLTFRM <span class="logo-dot"></span></a>
+    <button class="manage-btn" id="open-manager-btn">Manage Page</button>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <section class="hero">
+    <h1>Retail Media <strong>Tools</strong></h1>
+  </section>
+
+  <div class="controls-row">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.4" fill="none"></circle>
+        <line x1="8.8" y1="8.8" x2="13" y2="13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></line>
+      </svg>
+      <input type="text" class="search-input" id="search-input" placeholder="Search tools..." autocomplete="off">
+      <button class="search-clear visible" id="search-clear">✕</button>
+    </div>
+  </div>
+
+  <section class="tools-section">
+    <div class="tools-grid" id="tools-grid">
+      <div class="empty-state">No tools added yet. Click "Manage Page" to add your first app or skill.</div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <span>&copy; 2026 Retail Media Tools. Built by @jesskodiak</span>
+</footer>
+
+<!-- MANAGER OVERLAY -->
+<div class="overlay" id="manager-overlay">
+  <div class="manager-panel">
+    <div class="manager-header">
+      <div>
+        <div class="manager-eyebrow">Platform</div>
+        <div class="manager-title">Manage Tools</div>
+      </div>
+      <button class="close-btn" id="close-manager-btn">✕</button>
+    </div>
+
+    <div class="manager-tabs">
+      <button class="manager-tab active" data-tab="apps-tab">Apps</button>
+      <button class="manager-tab" data-tab="skills-tab">Skills</button>
+      <button class="manager-tab" data-tab="list-tab">All Tools</button>
+    </div>
+
+    <div class="tab-pane active" id="apps-tab">
+      <div class="section-label">Add App</div>
+      <div class="form-group">
+        <label class="form-label">App Name</label>
+        <input type="text" class="form-input" id="app-name" placeholder="e.g., Campaign Manager">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="app-desc" placeholder="What does this app do?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL</label>
+        <input type="text" class="form-input" id="app-url" placeholder="https://example.com">
+      </div>
+      <button class="btn-primary" id="add-app-btn">Add App</button>
+    </div>
+
+    <div class="tab-pane" id="skills-tab">
+      <div class="section-label">Add Skill</div>
+      <div class="form-group">
+        <label class="form-label">Skill Name</label>
+        <input type="text" class="form-input" id="skill-name" placeholder="e.g., Report Generator">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="skill-desc" placeholder="What does this skill do?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Instructions</label>
+        <textarea class="form-textarea" id="skill-instructions" placeholder="How to use this skill..."></textarea>
+      </div>
+      <button class="btn-primary" id="add-skill-btn">Add Skill</button>
+    </div>
+
+    <div class="tab-pane" id="list-tab">
+      <div class="section-label">Your Tools</div>
+      <div class="tools-list" id="tools-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const toolsGrid = document.getElementById('tools-grid');
+  const managerOverlay = document.getElementById('manager-overlay');
+  const openManagerBtn = document.getElementById('open-manager-btn');
+  const closeManagerBtn = document.getElementById('close-manager-btn');
+  const searchInput = document.getElementById('search-input');
+  const searchClear = document.getElementById('search-clear');
+  const tabs = document.querySelectorAll('.manager-tab');
+  const tabPanes = document.querySelectorAll('.tab-pane');
+  
+  let tools = JSON.parse(localStorage.getItem('retailMediaTools')) || [];
+  let filteredTools = tools;
+
+  openManagerBtn.addEventListener('click', () => managerOverlay.classList.add('open'));
+  closeManagerBtn.addEventListener('click', () => managerOverlay.classList.remove('open'));
+  managerOverlay.addEventListener('click', (e) => {
+    if (e.target === managerOverlay) managerOverlay.classList.remove('open');
+  });
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tabPanes.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+      if (tab.getAttribute('data-tab') === 'list-tab') renderToolsList();
+    });
+  });
+
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    searchClear.classList.toggle('visible', query.length > 0);
+    filteredTools = tools.filter(t => t.name.toLowerCase().includes(query));
+    renderTools();
+  });
+
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    searchClear.classList.remove('visible');
+    filteredTools = tools;
+    renderTools();
+  });
+
+  document.getElementById('add-app-btn').addEventListener('click', () => {
+    const name = document.getElementById('app-name').value.trim();
+    const desc = document.getElementById('app-desc').value.trim();
+    const url = document.getElementById('app-url').value.trim();
+    if (name && desc && url) {
+      tools.push({ id: Date.now(), type: 'app', name, desc, url, author: 'jesskodiak' });
+      localStorage.setItem('retailMediaTools', JSON.stringify(tools));
+      document.getElementById('app-name').value = '';
+      document.getElementById('app-desc').value = '';
+      document.getElementById('app-url').value = '';
+      filteredTools = tools;
+      renderTools();
+    }
+  });
+
+  document.getElementById('add-skill-btn').addEventListener('click', () => {
+    const name = document.getElementById('skill-name').value.trim();
+    const desc = document.getElementById('skill-desc').value.trim();
+    const instructions = document.getElementById('skill-instructions').value.trim();
+    if (name && desc && instructions) {
+      tools.push({ id: Date.now(), type: 'skill', name, desc, instructions, author: 'jesskodiak' });
+      localStorage.setItem('retailMediaTools', JSON.stringify(tools));
+      document.getElementById('skill-name').value = '';
+      document.getElementById('skill-desc').value = '';
+      document.getElementById('skill-instructions').value = '';
+      filteredTools = tools;
+      renderTools();
+    }
+  });
+
+  function deleteTool(id) {
+    tools = tools.filter(t => t.id !== id);
+    localStorage.setItem('retailMediaTools', JSON.stringify(tools));
+    filteredTools = tools;
+    renderTools();
+    renderToolsList();
+  }
+
+  function renderToolsList() {
+    const list = document.getElementById('tools-list');
+    if (tools.length === 0) {
+      list.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:20px">No tools yet</p>';
+      return;
+    }
+    list.innerHTML = tools.map(tool => `
+      <div class="tool-list-item">
+        <div>
+          <div class="tool-list-name">${tool.name}</div>
+          <div class="tool-list-type">${tool.type}</div>
+        </div>
+        <button class="btn-delete" onclick="deleteTool(${tool.id})">Delete</button>
+      </div>
+    `).join('');
+  }
+
+  function renderTools() {
+    if (filteredTools.length === 0) {
+      toolsGrid.innerHTML = '<div class="empty-state">No tools found. Click "Manage Page" to add your first app or skill.</div>';
+      return;
+    }
+    toolsGrid.innerHTML = filteredTools.map((tool, idx) => `
+      <a href="${tool.url || '#'}" class="tool-card is-${tool.type}" target="_blank">
+        <div class="tool-card-top">
+          <span class="tool-number">${String(idx + 1).padStart(2, '0')}</span>
+          <div class="tool-arrow">→</div>
+        </div>
+        <div class="tool-name">${tool.name}</div>
+        <div class="tool-desc">${tool.desc}</div>
+        <div class="tool-author">by <span>${tool.author}</span></div>
+        <div class="tool-card-footer">
+          <span class="tool-tag" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.3)">${tool.type}</span>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  renderTools();
+</script>
+
+</body>
+</html>
